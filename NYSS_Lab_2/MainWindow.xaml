@@ -1,0 +1,78 @@
+﻿<Window x:Class="NYSS_Lab_2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NYSS_Lab_2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="436.001" Width="671.333" MinWidth="500">
+    <Grid x:Name="mainGrid" MinWidth="500">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="45"/>
+            <RowDefinition />
+            <RowDefinition  Height="20"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Left">
+            <Button x:Name="Update" Content="Обновить" Padding="10,0,10,0" Click="Update_Click"/>
+            <Separator Background="Transparent" Width="10"/>
+            <Button x:Name="Save" Content="Сохранить" Padding="10,0,10,0" HorizontalAlignment="Right"/>
+            <Separator Background="Transparent" Width="10"/>
+            <Label Content="Стиль отображения" VerticalAlignment="Center" Width="Auto"/>
+            <ComboBox x:Name="ShowAs" Loaded="ShowAs_Loaded"  SelectionChanged="ShowAs_SelectionChanged" Width="100"/>
+            <Separator Background="Transparent" Width="10"/>
+            <Label Content="Частота обновлений" VerticalAlignment="Center" Width="Auto"/>
+            <ComboBox x:Name="Updfrequency" Loaded="Updfrequency_Loaded"  SelectionChanged="Updfrequency_SelectionChanged" Width="100"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <DataGrid x:Name="Table" Grid.Column="0" CanUserAddRows="False" SelectionChanged="Table_SelectionChanged"  LoadingRow="Table_LoadingRow" AutoGeneratingColumn="Table_AutoGeneratingColumn" Foreground="Black" BorderBrush="Transparent" IsReadOnly="True">
+            </DataGrid>
+
+            <ScrollViewer x:Name="InfoPanel" Grid.Column="1" Width="300">
+                <StackPanel  Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" ScrollViewer.HorizontalScrollBarVisibility="Hidden" >
+
+                    <Label Content="Идентификатор" FontWeight="Bold"/>
+                    <TextBox x:Name="Id" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Наименование" FontWeight="Bold"/>
+                    <TextBox x:Name="Name" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Источник угрозы" FontWeight="Bold"/>
+                    <TextBox x:Name="Sourse" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Объект воздействия" FontWeight="Bold"/>
+                    <TextBox x:Name="Target" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Нарушение конфиденциальности" FontWeight="Bold"/>
+                    <TextBox x:Name="Confidentiality" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Нарушение целостности" FontWeight="Bold"/>
+                    <TextBox x:Name="Integrity" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Нарушение доступности" FontWeight="Bold"/>
+                    <TextBox x:Name="Access" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+
+                    <Label Content="Описание" FontWeight="Bold"/>
+                    <TextBox x:Name="Description" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <Button  x:Name="Back" Grid.Column="0" Content="Назад" Click="Back_Click" ></Button>
+            <Button  x:Name="Next" Grid.Column="2" Content="Вперед" Click="Next_Click" ></Button>
+            <ProgressBar Grid.Column="4" LargeChange="1" Value="55" Cursor="" Foreground="#FF0682B0"></ProgressBar>
+            <Label Grid.Column="3" Content="------------+" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Normal" Height="25"></Label>
+            <Label Grid.Column="1" Margin="10,0,10,0" Content="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Normal" Height="25"></Label>
+        </Grid>
+    </Grid>
+</Window>
