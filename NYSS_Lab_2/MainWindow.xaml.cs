@@ -23,9 +23,8 @@ namespace NYSS_Lab_2
             InitializeComponent();
             ShowAs.ItemsSource = showedTypes;
             controller = new SourseDataController();
-            controller.DataLoader.Reader.RowsLimitEvent += SetEnablePagination;
+            controller.RowsLimitEvent += SetEnablePagination;
             controller.Load();
-
         }
 
         protected void ReloadData(List<SourseData> data)
@@ -57,10 +56,26 @@ namespace NYSS_Lab_2
 
         private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-            SourseData row = e.Row.DataContext as SourseData;
-            if (row != null && row.Name == "Денис")
-                e.Row.Background = new SolidColorBrush(Colors.Orange);
-
+            if((bool)ShowChanged.IsChecked)
+            {
+                SourseData row = e.Row.DataContext as SourseData;
+                if (row.RecordStatus == RecordStatuses.New)
+                {
+                    e.Row.Background = new SolidColorBrush(Colors.Green);
+                }
+                else if(row.RecordStatus == RecordStatuses.Changed)
+                {
+                    e.Row.Background = new SolidColorBrush(Colors.Orange);
+                }
+                else if (row.RecordStatus == RecordStatuses.Deleted)
+                {
+                    e.Row.Background = new SolidColorBrush(Colors.Red);
+                }
+                else if (row.RecordStatus == RecordStatuses.Actual)
+                {
+                    e.Row.Background = new SolidColorBrush(Colors.White);
+                }
+            }
         }
         private void Table_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {

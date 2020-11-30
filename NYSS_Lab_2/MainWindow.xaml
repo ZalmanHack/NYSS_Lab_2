@@ -20,6 +20,9 @@
             <Label Content="Стиль отображения" VerticalAlignment="Center" Width="Auto"/>
             <ComboBox x:Name="ShowAs" Loaded="ShowAs_Loaded"  SelectionChanged="ShowAs_SelectionChanged" Width="100"/>
             <Separator Background="Transparent" Width="10"/>
+            <Label Content="Изменения" VerticalAlignment="Center" Width="Auto"/>
+            <CheckBox x:Name="ShowChanged" VerticalAlignment="Center"></CheckBox>
+            <Separator Background="Transparent" Width="10"/>
             <Label Content="Частота обновлений" VerticalAlignment="Center" Width="Auto"/>
             <ComboBox x:Name="Updfrequency" Loaded="Updfrequency_Loaded"  SelectionChanged="Updfrequency_SelectionChanged" Width="100"/>
         </StackPanel>

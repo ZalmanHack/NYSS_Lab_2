@@ -11,9 +11,9 @@ namespace NYSS_Lab_2
     }
     public class ExcelReader
     {
-        public bool IsOpen { get; set; } = false;
+        public bool IsOpen { get; private set; } = false;
         public int Step { get; set; } = 40;
-        public int Count { get; set; } = 0;
+        public int Count { private get; set; } = 0;
         public string FilePath { get; set; } = "";
         public int Position
         {
@@ -118,7 +118,7 @@ namespace NYSS_Lab_2
             }
             catch (Exception)
             {
-                throw;
+                throw; 
             }
         }
 

@@ -6,16 +6,23 @@ using System.Windows;
 namespace NYSS_Lab_2
 {
     // Состояния положения каретки в файле
-
+    public struct OldNewData
+    {
+        public List<SourseData> DataOld;
+        public List<SourseData> DataNew;
+    }
     public class SourseDataLoader
     {
-        protected List<SourseData> Data { get; set; } = new List<SourseData>();
+
         public string URL { get; set; } = "";
 
         public delegate void ThrowEvents(string message);
         public event ThrowEvents ThrowEvent;
 
-        public ExcelReader Reader;
+        public ExcelReader ReaderNew;
+        public ExcelReader ReaderOld;
+
+        OldNewData ONData;
 
         private static string downloadName = "downloaded.xlsx";
         private static string actualName = "actual.xlsx";
@@ -26,7 +33,9 @@ namespace NYSS_Lab_2
         public SourseDataLoader(string url, List<string> headers)
         {
             URL = url;
-            Reader = new ExcelReader(actualName, headers);
+            ReaderNew = new ExcelReader(actualName, headers);
+            ReaderOld = new ExcelReader(oldName, headers);
+            ONData = new OldNewData();
         }
 
         public static bool DataExists(string name)
@@ -34,21 +43,106 @@ namespace NYSS_Lab_2
             return File.Exists(name);
         }
 
-        public List<SourseData> Load()
+        public OldNewData Next()
         {
             if (DataExists(actualName))
             {
-                Data = Reader.Read();
+                ONData.DataNew = ReaderNew.Next();
+            }
+            if (DataExists(oldName))
+            {
+                ONData.DataOld = ReaderOld.Next();
+            }
+            CompareData();
+            return ONData;
+        }
+
+        public OldNewData Back()
+        {
+            if (DataExists(actualName))
+            {
+                ONData.DataNew = ReaderNew.Back();
+            }
+            if (DataExists(oldName))
+            {
+                ONData.DataOld = ReaderOld.Back();
+            }
+            CompareData();
+            return ONData;
+        }
+
+        public void Close()
+        {
+            if (DataExists(actualName))
+            {
+                ReaderNew.Close();
+            }
+            if (DataExists(oldName))
+            {
+                ReaderOld.Close();
+            }
+        }
+
+        public OldNewData Load()
+        {
+            if (DataExists(actualName))
+            {
+                ONData.DataNew = ReaderNew.Read();
             }
             else
             {
                 if (ThrowMessage("Файл базы данных не был найден.\nВыполнить загрузку фала?"))
                 {
                     Download();
-                    Data = Reader.Read();
+                    ONData.DataNew = ReaderNew.Read();
                 }
             }
-            return Data;
+            if (DataExists(oldName))
+            {
+                ONData.DataOld = ReaderOld.Read();
+            }
+            CompareData();
+            return ONData;
+        }
+
+        protected void GetIdData(in List<SourseData> data, out List<string> result)
+        {
+            result = new List<string>();
+            for (int i = 0; i < data.Count; i++)
+                result.Add(data[i].Id);
+        }
+
+        public void CompareData()
+        {
+            if (ONData.DataNew != null && ONData.DataOld != null)
+            {
+                // получаем все ID 
+                List<string> idNew = new List<string>();
+                List<string> idOld = new List<string>();
+                GetIdData(in ONData.DataNew, out idNew);
+                GetIdData(in ONData.DataOld, out idOld);
+                for (int i = 0; i < idNew.Count; i++)
+                {
+                    if (idOld.Contains(idNew[i]))
+                    {
+                        int j = idOld.IndexOf(idNew[i]);
+                        if (ONData.DataNew[i] != ONData.DataOld[j])
+                        {
+                            ONData.DataNew[i].RecordStatus = RecordStatuses.Changed;
+                            ONData.DataOld[j].RecordStatus = RecordStatuses.Changed;
+                        }
+                        else
+                        {
+                            ONData.DataNew[i].RecordStatus = RecordStatuses.Actual;
+                            ONData.DataOld[j].RecordStatus = RecordStatuses.Actual;
+                        }
+                    }
+                    else
+                    {
+                        ONData.DataNew[i].RecordStatus = RecordStatuses.New;
+                    }
+                }
+            }
         }
 
         protected bool ThrowMessage(string message)

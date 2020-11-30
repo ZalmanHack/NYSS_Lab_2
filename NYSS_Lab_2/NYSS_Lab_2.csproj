@@ -66,6 +66,7 @@
     <Compile Include="VisibilityAttributes\ColMinimazeAttribute.cs" />
     <Compile Include="VisibilityAttributes\ColNormalAttribute.cs" />
     <Compile Include="VisibilityAttributes\ColumnNameAttribute.cs" />
+    <Compile Include="VisibilityAttributes\RecordStatusAttribute.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

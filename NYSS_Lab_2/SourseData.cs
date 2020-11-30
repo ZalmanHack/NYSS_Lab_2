@@ -39,6 +39,9 @@ namespace NYSS_Lab_2
         [ColumnName("Нарушение доступности")]
         public string Access { get; set; }
 
+        // статус текущей записи
+        public RecordStatuses RecordStatus { get; set; } = RecordStatuses.Actual;
+
         public SourseData() { }
 
         public SourseData(string id, string name, string description, string sourse, string target, string confidentiality, string integrity, string access)
