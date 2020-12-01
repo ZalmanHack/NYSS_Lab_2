@@ -17,8 +17,8 @@ namespace NYSS_Lab_2
     {
         public int timerMsec { get; set; } = 30_000; 
 
-        private enum VisibleColTypes { Minimazed, Normal, Compare }
-        private static List<string> showedTypes = new List<string> { "Сокращенно", "Полностью", "Сравнение" };
+        private enum VisibleColTypes { Minimazed, Normal }
+        private static List<string> showedTypes = new List<string> { "Сокращенно", "Полностью" };
         private static List<string> showedTime = new List<string> { "1 мин", "30 мин", "1 час" };
         private static VisibleColTypes visibleColType;
         public SourseDataController controller;
@@ -33,6 +33,7 @@ namespace NYSS_Lab_2
             controller = new SourseDataController();
             controller.RowsLimitEvent += SetEnablePagination;
             controller.DataLoader.InfoEvent += InfoLabel_SetText;
+            controller.DataLoader.UpdateEvent += UpdateLabel_SetText; 
         }
 
         protected void ReloadData()
@@ -44,6 +45,11 @@ namespace NYSS_Lab_2
         private void InfoLabel_SetText(string value)
         {
             InfoLabel.Content = value;
+        }
+
+        private void UpdateLabel_SetText(string value)
+        {
+            UpdateLabel.Content = value;
         }
 
         private void Table_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -81,12 +87,6 @@ namespace NYSS_Lab_2
                 attrib = desc.Attributes[typeof(ColMinimazeAttribute)];
                 InfoPanel.Visibility = Visibility.Visible;
                 InfoPanel.Width = 300;
-            }
-            else if (visibleColType == VisibleColTypes.Compare)
-            {
-                attrib = desc.Attributes[typeof(ColCompareAttribute)];
-                InfoPanel.Visibility = Visibility.Hidden;
-                InfoPanel.Width = 0;
             }
 
             if (attrib != null)

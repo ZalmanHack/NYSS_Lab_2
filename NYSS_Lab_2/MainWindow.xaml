@@ -70,14 +70,16 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
-            
-            <Button  x:Name="Back" Grid.Column="0" Content="Назад" Click="Back_Click" Width="60" ></Button>
-            <Separator  Grid.Column="3" Background="Transparent" Width="10" HorizontalAlignment="Left" />
-            <Button  x:Name="Next" Grid.Column="2" Content="Вперед" Click="Next_Click" Width="60" ></Button>
-            <Separator  Grid.Column="3" Background="Transparent" Width="10" HorizontalAlignment="Left"/>
-            <Label x:Name="InfoLabel" Grid.Column="3" Content=" " VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Normal" Height="25"></Label>
-        
-        </StackPanel>
+        <Grid  Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button  x:Name="Back" Grid.Column="0" HorizontalAlignment="Left" Content="Назад" Click="Back_Click" Width="60" ></Button>
+            <Button  x:Name="Next" Grid.Column="0" HorizontalAlignment="Right" Content="Вперед" Click="Next_Click" Width="60" ></Button>
+            <Label x:Name="InfoLabel" Grid.Column="1" Content=" " VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Normal" Height="25"></Label>
+            <Label x:Name="UpdateLabel" Grid.Column="1" Content=" " VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Normal" Height="25"></Label>
+
+        </Grid>
     </Grid>
 </Window>

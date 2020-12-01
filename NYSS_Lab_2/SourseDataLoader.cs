@@ -21,6 +21,7 @@ namespace NYSS_Lab_2
 
         public delegate void InfoDelegte(string message);
         public event InfoDelegte InfoEvent;
+        public event InfoDelegte UpdateEvent;
 
         public ExcelReader ReaderNew;
         public ExcelReader ReaderOld;
@@ -183,6 +184,19 @@ namespace NYSS_Lab_2
                     if (i == 1)
                         state = false;
                 }
+            }
+            if(state)
+            {
+                string text = $"Успешно обновлено {System.DateTime.Now.ToString("F")}";
+                UpdateEvent?.Invoke(text);
+                MessageBox.Show($"Успешно обновлено {System.DateTime.Now.ToString("F")}", "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+
+            }
+            else
+            {
+                string text = $"Ошибка обновления {System.DateTime.Now.ToString("F")}";
+                UpdateEvent?.Invoke(text);
+                MessageBox.Show("Не удалось обновить данные.\n\nЕсли программа запущена через Visual Studio, то следует закрыть Excel в диспетчере ¯\\_(ツ)_/¯", "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
             }
             return state;
         }
