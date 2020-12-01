@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Timers;
 using System.Windows.Media;
 
 namespace NYSS_Lab_2
@@ -15,27 +16,45 @@ namespace NYSS_Lab_2
     {
         private enum VisibleColTypes { Minimazed, Normal, Compare }
         private static List<string> showedTypes = new List<string> { "Сокращенно", "Полностью", "Сравнение" };
+        private static List<string> showedTime = new List<string> { "1 мин", "30 мин", "1 час" };
         private static VisibleColTypes visibleColType;
         public SourseDataController controller;
+        private Timer timerUpdate;
+        public List<SourseData> Data = new List<SourseData>();
 
         public MainWindow()
         {
             InitializeComponent();
             ShowAs.ItemsSource = showedTypes;
+            Updfrequency.ItemsSource = showedTime;
             controller = new SourseDataController();
             controller.RowsLimitEvent += SetEnablePagination;
-            controller.Load();
+            controller.DataLoader.InfoEvent += InfoLabel_SetText;
+            timerUpdate = new Timer(30000);
+            timerUpdate.Elapsed += Timeout;
+            timerUpdate.Start();
         }
 
-        protected void ReloadData(List<SourseData> data)
+        // БЫЛА ЗАГРУЗКА И ОБНОВЛЕНИЕ ЧЕРЕЗ ТАЙМАУТ,  
+        // НО Table.Items.Refresh(); НИКОГДА НЕ СРАБАТЫВАЛ ИЗ ТАЙМАУТА.
+        // В ДЕБАГЕ ПРОСТО ПРОПУСКАЕТСЯ ЭТОТ МЕТОД
+        // КОД:
+        // Data = controller.Download();
+        // ReloadData();
+        private void Timeout(Object source, ElapsedEventArgs e)
         {
-            Table.ItemsSource = null;
-            Table.ItemsSource = data;
+            MessageBox.Show("Пора обновить данные.\nДля этого нажмите кнопку \"обновить\"", "My App", MessageBoxButton.OK, MessageBoxImage.Question, MessageBoxResult.No);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        protected void ReloadData()
         {
+            Table.ItemsSource = Data;
+            Table.Items.Refresh();
+        }
 
+        private void InfoLabel_SetText(string value)
+        {
+            InfoLabel.Content = value;
         }
 
         private void Table_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -44,7 +63,7 @@ namespace NYSS_Lab_2
             {
                 SourseData data = e.AddedItems[0] as SourseData;
                 Id.Text = data.Id;
-                Name.Text = data.Name;
+                NameD.Text = data.Name;
                 Description.Text = data.Description;
                 Sourse.Text = data.Sourse;
                 Target.Text = data.Target;
@@ -54,29 +73,6 @@ namespace NYSS_Lab_2
             }
         }
 
-        private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
-        {
-            if((bool)ShowChanged.IsChecked)
-            {
-                SourseData row = e.Row.DataContext as SourseData;
-                if (row.RecordStatus == RecordStatuses.New)
-                {
-                    e.Row.Background = new SolidColorBrush(Colors.Green);
-                }
-                else if(row.RecordStatus == RecordStatuses.Changed)
-                {
-                    e.Row.Background = new SolidColorBrush(Colors.Orange);
-                }
-                else if (row.RecordStatus == RecordStatuses.Deleted)
-                {
-                    e.Row.Background = new SolidColorBrush(Colors.Red);
-                }
-                else if (row.RecordStatus == RecordStatuses.Actual)
-                {
-                    e.Row.Background = new SolidColorBrush(Colors.White);
-                }
-            }
-        }
         private void Table_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             var desc = e.PropertyDescriptor as PropertyDescriptor;
@@ -115,7 +111,21 @@ namespace NYSS_Lab_2
             int item = (sender as ComboBox).SelectedIndex;
             if (Enum.IsDefined(typeof(VisibleColTypes), item))
                 visibleColType = (VisibleColTypes)item;
-            ReloadData(controller.Load());
+            Data = controller.Load();
+            ReloadData();
+        }
+
+        private void Updfrequency_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            timerUpdate.Stop();
+            int item = (sender as ComboBox).SelectedIndex;
+            if (item == 0)
+                timerUpdate.Interval = 60_000;
+            if (item == 1)
+                timerUpdate.Interval = 1_800_000;
+            if (item == 2)
+                timerUpdate.Interval = 3_200_000;
+            timerUpdate.Start();
         }
 
         private void ShowAs_Loaded(object sender, RoutedEventArgs e)
@@ -123,49 +133,77 @@ namespace NYSS_Lab_2
             ShowAs.SelectedIndex = 0;
         }
 
+        private void Updfrequency_Loaded(object sender, RoutedEventArgs e)
+        {
+            Updfrequency.SelectedIndex = 0;
+        }
+
         private void SetEnablePagination(RowsLinits value)
         {
             if (value == RowsLinits.End)
             {
-                Next.Visibility = Visibility.Collapsed;
-                Back.Visibility = Visibility.Visible;
+                Next.IsEnabled = false;
+                Back.IsEnabled = true;
             }
             else if (value == RowsLinits.Middle)
             {
-                Next.Visibility = Visibility.Visible;
-                Back.Visibility = Visibility.Visible;
+                Next.IsEnabled = true;
+                Back.IsEnabled = true;
             }
             else if (value == RowsLinits.Start)
             {
-                Next.Visibility = Visibility.Visible;
-                Back.Visibility = Visibility.Collapsed;
+                Next.IsEnabled = true;
+                Back.IsEnabled = false;
             }
         }
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-
-            ReloadData(controller.Back());
+            Data = controller.Back();
+            ReloadData();
         }
 
         private void Next_Click(object sender, RoutedEventArgs e)
         {
-            ReloadData(controller.Next());
+            Data = controller.Next();
+            ReloadData();
+        }
+
+        private void Сompare_Checked(object sender, RoutedEventArgs e)
+        {
+            controller.SourseType = SourseTypes.Old;
+            Data = controller.Load();
+            ReloadData();
+        }
+
+        private void Сompare_Unchecked(object sender, RoutedEventArgs e)
+        {
+            controller.SourseType = SourseTypes.New;
+            Data = controller.Load();
+            ReloadData();
         }
 
         private void Update_Click(object sender, RoutedEventArgs e)
         {
-
+            Data = controller.Download();
+            ReloadData();
         }
 
-        private void Updfrequency_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void Table_LoadingRow(object sender, DataGridRowEventArgs e)
         {
-
+            if(e.Row.GetIndex() % 2 == 0)
+            {
+                e.Row.Background = new SolidColorBrush(Colors.White);
+            }
+            else
+            {
+                e.Row.Background = new SolidColorBrush(Colors.WhiteSmoke);
+            }
         }
 
-        private void Updfrequency_Loaded(object sender, RoutedEventArgs e)
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
-
+            controller.Save();
         }
     }
 }

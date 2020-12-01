@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Win32;
+using System.Collections.Generic;
 
 namespace NYSS_Lab_2
 {
@@ -54,13 +55,15 @@ namespace NYSS_Lab_2
             if (SourseType == SourseTypes.New)
                 return data.DataNew;
             else if (SourseType == SourseTypes.Old)
-                return data.DataNew;
+                return data.DataOld;
             return data.DataNew;
         }
 
         public List<SourseData> Load()
         {
-            return ExtraxtData(DataLoader.Load());
+            List<SourseData> result = ExtraxtData(DataLoader.Load());
+            DataLoader.AnalizData();
+            return result;
         }
         public List<SourseData> Back()
         {
@@ -71,9 +74,21 @@ namespace NYSS_Lab_2
             return ExtraxtData(DataLoader.Next());
         }
 
+        public List<SourseData> Download()
+        {
+            DataLoader.Download();
+            return Load();
+        }
+
         public void Save()
         {
             DataLoader.Close();
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Таблицы (.xlsx)|.xlsx";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                DataLoader.Save(saveFileDialog.FileName);
+            }
         }
     }
 }

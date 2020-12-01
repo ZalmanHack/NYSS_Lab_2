@@ -12,9 +12,10 @@ namespace NYSS_Lab_2
     public class ExcelReader
     {
         public bool IsOpen { get; private set; } = false;
-        public int Step { get; set; } = 40;
+        public int Step { get; set; } = 20;
         public int Count { private get; set; } = 0;
         public string FilePath { get; set; } = "";
+        public List<string> RowsId { get; set; } = new List<string>();
         public int Position
         {
             get
@@ -55,6 +56,7 @@ namespace NYSS_Lab_2
         {
             FilePath = path;
             Headers = headers;
+            App = new Excel.Application();
         }
 
         ~ExcelReader()
@@ -77,18 +79,22 @@ namespace NYSS_Lab_2
         private void Open()
         {
             IsOpen = true;
-            App = new Excel.Application();
             Workbook = App.Workbooks.Open(Path.GetFullPath(FilePath));
             Worksheet = (Excel.Worksheet)Workbook.Worksheets["Sheet"];
             Range = Worksheet.UsedRange;
             List<string> readHeader = new List<string>();
             for (int i = 1; i < Range.Columns.Count; i++)
             {
-                readHeader.Add(Range.Cells[2, i].Value);
+                readHeader.Add(Range.Cells[2, i].Text);
             }
             ColumnIndexes = GetColIndexes(readHeader);
             Count = Range.Rows.Count;
             Position = 3;
+            RowsId.Clear();
+            for (int i = Position; i < Range.Rows.Count; i++)
+            {
+                RowsId.Add(Range.Cells[i, 1].Text);
+            }
         }
 
         public List<SourseData> Read()
@@ -118,20 +124,30 @@ namespace NYSS_Lab_2
             }
             catch (Exception)
             {
-                throw; 
+                return new List<SourseData>();
             }
         }
 
         public void Close()
         {
-            IsOpen = false;
-            if (Workbook != null)
-                Workbook.Close();
-            if (App != null)
-                App.Quit();
+            if(IsOpen)
+            {
+                IsOpen = false;
+                if (Workbook != null)
+                {
+                    Workbook.Close();
+                    // Workbook = null;
+                }
+                if (App != null)
+                {
+                    //App.Quit();
+                    //App = null;
+                }
+                    
+            }
         }
 
-        public List<int> GetColIndexes(List<string> readHeader)
+        private List<int> GetColIndexes(List<string> readHeader)
         {
             List<int> result = new List<int>();
             foreach (var item in Headers)

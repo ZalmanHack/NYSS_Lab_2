@@ -2,6 +2,9 @@
 using System.IO;
 using System.Net;
 using System.Windows;
+using System.Linq;
+using System.Diagnostics;
+using Microsoft.Win32;
 
 namespace NYSS_Lab_2
 {
@@ -16,8 +19,8 @@ namespace NYSS_Lab_2
 
         public string URL { get; set; } = "";
 
-        public delegate void ThrowEvents(string message);
-        public event ThrowEvents ThrowEvent;
+        public delegate void InfoDelegte(string message);
+        public event InfoDelegte InfoEvent;
 
         public ExcelReader ReaderNew;
         public ExcelReader ReaderOld;
@@ -53,7 +56,6 @@ namespace NYSS_Lab_2
             {
                 ONData.DataOld = ReaderOld.Next();
             }
-            CompareData();
             return ONData;
         }
 
@@ -67,7 +69,6 @@ namespace NYSS_Lab_2
             {
                 ONData.DataOld = ReaderOld.Back();
             }
-            CompareData();
             return ONData;
         }
 
@@ -93,6 +94,7 @@ namespace NYSS_Lab_2
             {
                 if (ThrowMessage("Файл базы данных не был найден.\nВыполнить загрузку фала?"))
                 {
+                    CloseProcess();
                     Download();
                     ONData.DataNew = ReaderNew.Read();
                 }
@@ -101,47 +103,27 @@ namespace NYSS_Lab_2
             {
                 ONData.DataOld = ReaderOld.Read();
             }
-            CompareData();
             return ONData;
         }
 
-        protected void GetIdData(in List<SourseData> data, out List<string> result)
+        public static void CloseProcess()
         {
-            result = new List<string>();
-            for (int i = 0; i < data.Count; i++)
-                result.Add(data[i].Id);
+            Process[] List;
+            List = Process.GetProcessesByName("EXCEL");
+            foreach (Process proc in List)
+            {
+                proc.Kill();
+
+            }
         }
 
-        public void CompareData()
+        public void AnalizData()
         {
-            if (ONData.DataNew != null && ONData.DataOld != null)
+            if(ONData.DataNew != null && ONData.DataOld != null)
             {
-                // получаем все ID 
-                List<string> idNew = new List<string>();
-                List<string> idOld = new List<string>();
-                GetIdData(in ONData.DataNew, out idNew);
-                GetIdData(in ONData.DataOld, out idOld);
-                for (int i = 0; i < idNew.Count; i++)
-                {
-                    if (idOld.Contains(idNew[i]))
-                    {
-                        int j = idOld.IndexOf(idNew[i]);
-                        if (ONData.DataNew[i] != ONData.DataOld[j])
-                        {
-                            ONData.DataNew[i].RecordStatus = RecordStatuses.Changed;
-                            ONData.DataOld[j].RecordStatus = RecordStatuses.Changed;
-                        }
-                        else
-                        {
-                            ONData.DataNew[i].RecordStatus = RecordStatuses.Actual;
-                            ONData.DataOld[j].RecordStatus = RecordStatuses.Actual;
-                        }
-                    }
-                    else
-                    {
-                        ONData.DataNew[i].RecordStatus = RecordStatuses.New;
-                    }
-                }
+                int added = ReaderNew.RowsId.Except(ReaderOld.RowsId).Count();
+                int deleted = ReaderOld.RowsId.Except(ReaderNew.RowsId).Count();
+                InfoEvent?.Invoke($"Добавлено строк: {added}    Удалено строк: {deleted}    Всего строк: {ReaderNew.RowsId.Count}");
             }
         }
 
@@ -156,27 +138,52 @@ namespace NYSS_Lab_2
             }
         }
 
-        public void Download()
+        public void Save(string path)
         {
-
-            new WebClient().DownloadFile(URL, downloadName);
-            if (DataExists(tempName))
+            if (Path.GetFullPath(actualName) == null)
             {
-                File.Delete(tempName);
-            }
-            if (DataExists(actualName))
-            {
-                if (DataExists(oldName))
-                {
-                    File.Delete(oldName);
-                }
-                File.Move(actualName, oldName);
-                File.Move(downloadName, actualName);
+                MessageBox.Show("Файл не найден");
             }
             else
             {
-                File.Move(downloadName, actualName);
+                File.Copy(Path.GetFullPath(actualName), path);
             }
+        }
+
+        public bool Download()
+        {
+            ReaderNew.Close();
+            ReaderOld.Close();
+            try
+            {
+                new WebClient().DownloadFile(URL, downloadName);
+
+                if (DataExists(tempName))
+                {
+                    File.Delete(tempName);
+                }
+                if (DataExists(actualName))
+                {
+                    if (DataExists(oldName))
+                    {
+                        File.Delete(oldName);
+                    }
+                    File.Move(actualName, oldName);
+                    File.Move(downloadName, actualName);
+                }
+                else
+                {
+                    File.Move(downloadName, actualName);
+                }
+            }
+            catch (System.Exception)
+            {
+                if (ThrowMessage("Не удалось загрузить файл.\nПовторить попытку?"))
+                    Download();
+                else
+                    return false;
+            }
+            return true;
         }
     }
 }

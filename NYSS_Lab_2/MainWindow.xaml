@@ -9,29 +9,36 @@
     <Grid x:Name="mainGrid" MinWidth="500">
         <Grid.RowDefinitions>
             <RowDefinition Height="45"/>
+            <RowDefinition Height="20"/>
             <RowDefinition />
             <RowDefinition  Height="20"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal" Margin="10" HorizontalAlignment="Left">
             <Button x:Name="Update" Content="Обновить" Padding="10,0,10,0" Click="Update_Click"/>
             <Separator Background="Transparent" Width="10"/>
-            <Button x:Name="Save" Content="Сохранить" Padding="10,0,10,0" HorizontalAlignment="Right"/>
+            <Button x:Name="Save" Content="Сохранить" Padding="10,0,10,0" HorizontalAlignment="Right" Click="Save_Click"/>
             <Separator Background="Transparent" Width="10"/>
             <Label Content="Стиль отображения" VerticalAlignment="Center" Width="Auto"/>
             <ComboBox x:Name="ShowAs" Loaded="ShowAs_Loaded"  SelectionChanged="ShowAs_SelectionChanged" Width="100"/>
             <Separator Background="Transparent" Width="10"/>
-            <Label Content="Изменения" VerticalAlignment="Center" Width="Auto"/>
-            <CheckBox x:Name="ShowChanged" VerticalAlignment="Center"></CheckBox>
+            <Label Content="Было-стало" VerticalAlignment="Center" Width="Auto"/>
+            <CheckBox x:Name="Сompare" VerticalAlignment="Center" Unchecked="Сompare_Unchecked" Checked="Сompare_Checked"></CheckBox>
             <Separator Background="Transparent" Width="10"/>
             <Label Content="Частота обновлений" VerticalAlignment="Center" Width="Auto"/>
-            <ComboBox x:Name="Updfrequency" Loaded="Updfrequency_Loaded"  SelectionChanged="Updfrequency_SelectionChanged" Width="100"/>
+            <ComboBox x:Name="Updfrequency" Width="100" SelectionChanged="Updfrequency_SelectionChanged" Loaded="Updfrequency_Loaded"/>
         </StackPanel>
-        <Grid Grid.Row="1">
+        <Border Grid.Row="1" Background="#FFFFD100"></Border>
+        <Label Grid.Row="1"  Content="Многопоточность не завезли, поэтому ругулярные подвисания программы являются нормальными :-)" 
+               FontWeight="Bold" VerticalAlignment="Center" Margin="0" Height="26" HorizontalAlignment="Center"/>
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <DataGrid x:Name="Table" Grid.Column="0" CanUserAddRows="False" SelectionChanged="Table_SelectionChanged"  LoadingRow="Table_LoadingRow" AutoGeneratingColumn="Table_AutoGeneratingColumn" Foreground="Black" BorderBrush="Transparent" IsReadOnly="True">
+            <DataGrid x:Name="Table" Grid.Column="0" 
+                      CanUserAddRows="False" LoadingRow="Table_LoadingRow" SelectionChanged="Table_SelectionChanged" AutoGeneratingColumn="Table_AutoGeneratingColumn" 
+                      Foreground="Black" BorderBrush="Transparent" VerticalGridLinesBrush="LightGray" HorizontalGridLinesBrush="LightGray"
+                      IsReadOnly="True" Grid.RowSpan="2" BorderThickness="1">
             </DataGrid>
 
             <ScrollViewer x:Name="InfoPanel" Grid.Column="1" Width="300">
@@ -41,7 +48,7 @@
                     <TextBox x:Name="Id" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
 
                     <Label Content="Наименование" FontWeight="Bold"/>
-                    <TextBox x:Name="Name" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
+                    <TextBox x:Name="NameD" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
 
                     <Label Content="Источник угрозы" FontWeight="Bold"/>
                     <TextBox x:Name="Sourse" HorizontalAlignment="Left" TextWrapping="Wrap" BorderBrush="White" IsReadOnly="True" BorderThickness="0"/>
@@ -63,19 +70,14 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="50"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="100"/>
-            </Grid.ColumnDefinitions>
-            <Button  x:Name="Back" Grid.Column="0" Content="Назад" Click="Back_Click" ></Button>
-            <Button  x:Name="Next" Grid.Column="2" Content="Вперед" Click="Next_Click" ></Button>
-            <ProgressBar Grid.Column="4" LargeChange="1" Value="55" Cursor="" Foreground="#FF0682B0"></ProgressBar>
-            <Label Grid.Column="3" Content="------------+" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Normal" Height="25"></Label>
-            <Label Grid.Column="1" Margin="10,0,10,0" Content="0" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Normal" Height="25"></Label>
-        </Grid>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
+            
+            <Button  x:Name="Back" Grid.Column="0" Content="Назад" Click="Back_Click" Width="60" ></Button>
+            <Separator  Grid.Column="3" Background="Transparent" Width="10" HorizontalAlignment="Left" />
+            <Button  x:Name="Next" Grid.Column="2" Content="Вперед" Click="Next_Click" Width="60" ></Button>
+            <Separator  Grid.Column="3" Background="Transparent" Width="10" HorizontalAlignment="Left"/>
+            <Label x:Name="InfoLabel" Grid.Column="3" Content=" " VerticalAlignment="Center" HorizontalAlignment="Left" FontWeight="Normal" Height="25"></Label>
+        
+        </StackPanel>
     </Grid>
 </Window>

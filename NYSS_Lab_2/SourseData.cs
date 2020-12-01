@@ -5,10 +5,20 @@ namespace NYSS_Lab_2
 {
     public class SourseData
     {
+        private string id = "";
+        private string confidentialityd = "";
+        private string integrity = "";
+        private string access = "";
+
+
         [ColNormal]
         [ColMinimaze]
         [ColumnName("Идентификатор УБИ")]
-        public string Id { get; set; }
+        public string Id
+        { 
+            get { return string.IsNullOrEmpty(id) == true ? "" : "УБИ." + id; }
+            set { id = value; } 
+        }
 
         [ColNormal]
         [ColMinimaze]
@@ -29,18 +39,27 @@ namespace NYSS_Lab_2
 
         [ColNormal]
         [ColumnName("Нарушение конфиденциальности")]
-        public string Confidentiality { get; set; }
+        public string Confidentiality
+        { 
+            get { return confidentialityd == "0" ? "Нет" : "Да"; } 
+            set { confidentialityd = value; } 
+        }
 
         [ColNormal]
         [ColumnName("Нарушение целостности")]
-        public string Integrity { get; set; }
+        public string Integrity
+        {
+            get { return integrity == "0" ? "Нет" : "Да"; }
+            set { integrity = value; }
+        }
 
         [ColNormal]
         [ColumnName("Нарушение доступности")]
-        public string Access { get; set; }
-
-        // статус текущей записи
-        public RecordStatuses RecordStatus { get; set; } = RecordStatuses.Actual;
+        public string Access
+        {
+            get { return access == "0" ? "Нет" : "Да"; }
+            set { access = value; }
+        }
 
         public SourseData() { }
 
