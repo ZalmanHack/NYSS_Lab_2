@@ -37,7 +37,7 @@
             </Grid.ColumnDefinitions>
             <DataGrid x:Name="Table" Grid.Column="0" 
                       CanUserAddRows="False" LoadingRow="Table_LoadingRow" SelectionChanged="Table_SelectionChanged" AutoGeneratingColumn="Table_AutoGeneratingColumn" 
-                      Foreground="Black" BorderBrush="Transparent" VerticalGridLinesBrush="LightGray" HorizontalGridLinesBrush="LightGray"
+                      Foreground="Black" BorderBrush="Transparent" VerticalGridLinesBrush="LightGray" HorizontalGridLinesBrush="LightGray" Loaded="Table_Loaded"
                       IsReadOnly="True" Grid.RowSpan="2" BorderThickness="1">
             </DataGrid>
 

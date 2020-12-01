@@ -92,9 +92,8 @@ namespace NYSS_Lab_2
             }
             else
             {
-                if (ThrowMessage("Файл базы данных не был найден.\nВыполнить загрузку фала?"))
+                if (ThrowMessage("Файл базы данных не был найден.\nВыполнить загрузку фала?\n\nВ противном случае файл будет скачан по таймеру"))
                 {
-                    CloseProcess();
                     Download();
                     ONData.DataNew = ReaderNew.Read();
                 }
@@ -152,38 +151,40 @@ namespace NYSS_Lab_2
 
         public bool Download()
         {
+            WebClient client = new WebClient();
             ReaderNew.Close();
             ReaderOld.Close();
-            try
+            bool state = true;
+            for (int i = 0; i < 2; i++)
             {
-                new WebClient().DownloadFile(URL, downloadName);
-
-                if (DataExists(tempName))
+                try
                 {
-                    File.Delete(tempName);
-                }
-                if (DataExists(actualName))
-                {
-                    if (DataExists(oldName))
+                    client.DownloadFile(URL, downloadName);
+                    if (DataExists(tempName))
                     {
-                        File.Delete(oldName);
+                        File.Delete(tempName);
                     }
-                    File.Move(actualName, oldName);
-                    File.Move(downloadName, actualName);
+                    if (DataExists(actualName))
+                    {
+                        if (DataExists(oldName))
+                        {
+                            File.Delete(oldName);
+                        }
+                        File.Move(actualName, oldName);
+                        File.Move(downloadName, actualName);
+                    }
+                    else
+                    {
+                        File.Move(downloadName, actualName);
+                    }
                 }
-                else
+                catch (System.Exception)
                 {
-                    File.Move(downloadName, actualName);
+                    if (i == 1)
+                        state = false;
                 }
             }
-            catch (System.Exception)
-            {
-                if (ThrowMessage("Не удалось загрузить файл.\nПовторить попытку?"))
-                    Download();
-                else
-                    return false;
-            }
-            return true;
+            return state;
         }
     }
 }

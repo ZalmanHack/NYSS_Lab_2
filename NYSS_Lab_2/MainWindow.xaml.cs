@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Timers;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace NYSS_Lab_2
 {
@@ -14,13 +15,15 @@ namespace NYSS_Lab_2
     /// 
     public partial class MainWindow : Window
     {
+        public int timerMsec { get; set; } = 30_000; 
+
         private enum VisibleColTypes { Minimazed, Normal, Compare }
         private static List<string> showedTypes = new List<string> { "Сокращенно", "Полностью", "Сравнение" };
         private static List<string> showedTime = new List<string> { "1 мин", "30 мин", "1 час" };
         private static VisibleColTypes visibleColType;
         public SourseDataController controller;
-        private Timer timerUpdate;
         public List<SourseData> Data = new List<SourseData>();
+        DispatcherTimer DispatcherTimer = new DispatcherTimer();
 
         public MainWindow()
         {
@@ -30,26 +33,12 @@ namespace NYSS_Lab_2
             controller = new SourseDataController();
             controller.RowsLimitEvent += SetEnablePagination;
             controller.DataLoader.InfoEvent += InfoLabel_SetText;
-            timerUpdate = new Timer(30000);
-            timerUpdate.Elapsed += Timeout;
-            timerUpdate.Start();
-        }
-
-        // БЫЛА ЗАГРУЗКА И ОБНОВЛЕНИЕ ЧЕРЕЗ ТАЙМАУТ,  
-        // НО Table.Items.Refresh(); НИКОГДА НЕ СРАБАТЫВАЛ ИЗ ТАЙМАУТА.
-        // В ДЕБАГЕ ПРОСТО ПРОПУСКАЕТСЯ ЭТОТ МЕТОД
-        // КОД:
-        // Data = controller.Download();
-        // ReloadData();
-        private void Timeout(Object source, ElapsedEventArgs e)
-        {
-            MessageBox.Show("Пора обновить данные.\nДля этого нажмите кнопку \"обновить\"", "My App", MessageBoxButton.OK, MessageBoxImage.Question, MessageBoxResult.No);
         }
 
         protected void ReloadData()
         {
+            Table.ItemsSource = null;
             Table.ItemsSource = Data;
-            Table.Items.Refresh();
         }
 
         private void InfoLabel_SetText(string value)
@@ -117,15 +106,15 @@ namespace NYSS_Lab_2
 
         private void Updfrequency_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            timerUpdate.Stop();
+            DispatcherTimer.Stop();
             int item = (sender as ComboBox).SelectedIndex;
             if (item == 0)
-                timerUpdate.Interval = 60_000;
+                DispatcherTimer.Interval = new TimeSpan(0, 1, 0);
             if (item == 1)
-                timerUpdate.Interval = 1_800_000;
+                DispatcherTimer.Interval = new TimeSpan(0, 30, 0);
             if (item == 2)
-                timerUpdate.Interval = 3_200_000;
-            timerUpdate.Start();
+                DispatcherTimer.Interval = new TimeSpan(1, 0, 0);
+            DispatcherTimer.Start();
         }
 
         private void ShowAs_Loaded(object sender, RoutedEventArgs e)
@@ -204,6 +193,27 @@ namespace NYSS_Lab_2
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             controller.Save();
+        }
+
+        private void Table_Loaded(object sender, RoutedEventArgs e)
+        {
+            try {
+                SetTimer();
+            }
+            catch (Exception) { }
+        }
+
+        private void Timeout(object sender, EventArgs e)
+        {
+            Data = controller.Download();
+            ReloadData();
+        }
+
+        private void SetTimer()
+        {
+            DispatcherTimer.Tick += new EventHandler(Timeout);
+            DispatcherTimer.Interval = new TimeSpan(0, 0, 20);
+            DispatcherTimer.Start();
         }
     }
 }
