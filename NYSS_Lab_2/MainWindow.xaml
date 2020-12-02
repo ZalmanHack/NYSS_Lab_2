@@ -28,7 +28,7 @@
             <ComboBox x:Name="Updfrequency" Width="100" SelectionChanged="Updfrequency_SelectionChanged" Loaded="Updfrequency_Loaded"/>
         </StackPanel>
         <Border Grid.Row="1" Background="#FFFFD100"></Border>
-        <Label Grid.Row="1"  Content="Многопоточность не завезли, поэтому ругулярные подвисания программы являются нормальными :-)" 
+        <Label Grid.Row="1"  Content="Многопоточность не завезли, поэтому регулярные подвисания программы являются нормальными :-)" 
                FontWeight="Bold" VerticalAlignment="Center" Margin="0" Height="26" HorizontalAlignment="Center"/>
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>

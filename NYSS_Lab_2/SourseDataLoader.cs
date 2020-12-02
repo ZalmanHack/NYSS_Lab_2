@@ -155,50 +155,77 @@ namespace NYSS_Lab_2
             WebClient client = new WebClient();
             ReaderNew.Close();
             ReaderOld.Close();
-            bool state = true;
             for (int i = 0; i < 2; i++)
             {
                 try
                 {
                     client.DownloadFile(URL, downloadName);
-                    if (DataExists(tempName))
-                    {
-                        File.Delete(tempName);
-                    }
                     if (DataExists(actualName))
                     {
-                        if (DataExists(oldName))
+                        if (!FileCompare(downloadName, actualName))
                         {
-                            File.Delete(oldName);
+                            if (DataExists(oldName))
+                            {
+                                File.Delete(oldName);
+                            }
+                            File.Move(actualName, oldName);
+                            File.Move(downloadName, actualName);
+                            string text = $"Успешно обновлено {System.DateTime.Now.ToString("F")}";
+                            UpdateEvent?.Invoke(text);
+                            MessageBox.Show(text, "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+                            return true;
                         }
-                        File.Move(actualName, oldName);
-                        File.Move(downloadName, actualName);
                     }
                     else
                     {
                         File.Move(downloadName, actualName);
+                        string text = $"Успешно обновлено {System.DateTime.Now.ToString("F")}";
+                        UpdateEvent?.Invoke(text);
+                        MessageBox.Show(text, "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+                        return true;
                     }
                 }
                 catch (System.Exception)
                 {
                     if (i == 1)
-                        state = false;
+                    {
+                        string text = $"Ошибка обновления {System.DateTime.Now.ToString("F")}";
+                        UpdateEvent?.Invoke(text);
+                        MessageBox.Show("Не удалось обновить данные.\n\nЕсли программа запущена через Visual Studio, то следует закрыть Excel в диспетчере ¯\\_(ツ)_/¯", "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+                        return false;
+                    }
                 }
             }
-            if(state)
-            {
-                string text = $"Успешно обновлено {System.DateTime.Now.ToString("F")}";
-                UpdateEvent?.Invoke(text);
-                MessageBox.Show($"Успешно обновлено {System.DateTime.Now.ToString("F")}", "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+            return true;
+        }
 
-            }
-            else
+        private bool FileCompare(string file1, string file2)
+        {
+            int file1byte;
+            int file2byte;
+            FileStream fs1;
+            FileStream fs2;
+            if (file1 == file2)
             {
-                string text = $"Ошибка обновления {System.DateTime.Now.ToString("F")}";
-                UpdateEvent?.Invoke(text);
-                MessageBox.Show("Не удалось обновить данные.\n\nЕсли программа запущена через Visual Studio, то следует закрыть Excel в диспетчере ¯\\_(ツ)_/¯", "My App", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.No);
+                return true;
             }
-            return state;
+            fs1 = new FileStream(file1, FileMode.Open);
+            fs2 = new FileStream(file2, FileMode.Open);
+            if (fs1.Length != fs2.Length)
+            {
+                fs1.Close();
+                fs2.Close();
+                return false;
+            }
+            do
+            {
+                file1byte = fs1.ReadByte();
+                file2byte = fs2.ReadByte();
+            }
+            while ((file1byte == file2byte) && (file1byte != -1));
+            fs1.Close();
+            fs2.Close();
+            return ((file1byte - file2byte) == 0);
         }
     }
 }
